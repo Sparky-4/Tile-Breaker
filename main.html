@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link href='https://fonts.googleapis.com/css?family=Electrolize' rel='stylesheet'>
+	<style>
+		body {
+			overflow: hidden;
+			margin: 0px;
+		}
+		
+	</style>
+
+</head>
+<body onLoad = requestAnimationFrame(update)>
+
+<canvas id="myCanvas"></canvas>
+
+<!--js scripts for objects and misc.-->
+<script src="src/constants.js"></script>
+<script src="src/StateMachine.js"></script>
+<script src="src/tile.js"></script>
+
+<!--js scripts for all states-->
+<script src="src/states/EnterState.js"></script>
+<script src="src/states/GameOverState.js"></script>
+<script src="src/states/StartState.js"></script>
+<script src="src/states/ScoreState.js"></script>
+<script src="src/states/PlayState.js"></script>
+
+
+<script>
+
+    // Declare and initialize the canvas variables
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Variables for finding FPS
+    const times = [];
+    let fps;
+
+    // Add event listeners for keydown and keyup and change the array "keys" accordingly
+    let keys = [];
+    window.addEventListener('keydown', function (e) {
+        keys[e.keyCode] = true;
+    })
+    window.addEventListener('keyup', function (e) {
+        keys[e.keyCode] = false;
+    })
+
+    // Add event listener for mouse movement and clicks
+    let mousePositionX;
+    let mousePositionY;
+    let isMouseDown = false;
+    window.addEventListener('mousemove', function (e){
+        mousePositionX = e.clientX;
+        mousePositionY = e.clientY;
+    })
+    window.addEventListener('mousedown', function (e){
+        isMouseDown = true;
+        console.log(isMouseDown)
+    })
+    window.addEventListener('mouseup', function (e){
+        isMouseDown = false;
+        console.log(isMouseDown)
+
+    })
+
+    // Create state machine and initialize states
+    gStateMachine = new StateMachine({
+		start: new StartState(),
+		// scores: new ScoreState(),
+		// play: new PlayState(),
+		// game_over: new GameOverState(),
+		// enter: new EnterState(),
+		});
+	gStateMachine.change('start');
+
+    /* 
+    * The update function - called every frame using requestAnimationFrame and updates
+    * individual parts of the game
+    */
+    function update()
+    {
+        draw();
+        gStateMachine.update();
+        requestAnimationFrame(update);
+    }
+
+    /*
+    * Draw on the canvas and call the render functions of other necessary parts
+    */
+    function draw()
+    {
+        ctx.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT)
+        displayFPS();
+		gStateMachine.render();
+    }
+
+    /*
+    * Display the FPS by adding a time stamp to the times array and removing any stamp
+    * longer than one second
+    */
+    function displayFPS()
+    {
+        const now = performance.now();
+        while (times.length > 0 && times[0] <= now - 1000) {
+            times.shift();
+        }
+        times.push(now);
+        fps = times.length;
+        
+        ctx.textAlign = 'left';
+        //ctx.font = gFonts.small;
+        ctx.fillStyle = 'green';
+        ctx.fillText("FPS: " + fps, 10*SCALE_FACTOR_WIDTH, 10*SCALE_FACTOR_HEIGHT);
+    }
+
+
+
+    
+</script>
+
+
+    
+</body>
+</html>
