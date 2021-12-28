@@ -20,6 +20,11 @@
 <script src="src/constants.js"></script>
 <script src="src/StateMachine.js"></script>
 <script src="src/tile.js"></script>
+<script src="src/Quad.js"></script>
+<script src="src/Util.js"></script>
+<script src="src/Timer.js"></script>
+<script src="src/Tween.js"></script>
+<script src="src/Board.js"></script>
 
 <!--js scripts for all states-->
 <script src="src/states/EnterState.js"></script>
@@ -41,6 +46,41 @@
     const times = [];
     let fps;
 
+    // Load new font from the font files
+    var font = new FontFace('font', 'url(fonts/font.ttf)');
+    font.load().then(function(loaded_face) {
+        document.fonts.add(loaded_face);
+    })
+    
+    // Declare and initialize objects that holds fonts
+    let gFonts = {
+        small: 8*SCALE_FACTOR_WIDTH + "px font",
+        medium: 16*SCALE_FACTOR_WIDTH + "px font",
+        large: 32*SCALE_FACTOR_WIDTH + "px font",
+        other: 4*SCALE_FACTOR_WIDTH + "px Arial"
+    };
+
+    // Declare all images as image objects in a global textures object
+    let backgroundScroll = 0;
+    let backgroundScale = WINDOW_HEIGHT/357;
+    let gTextures = {
+        start: new Image(),
+        start2: new Image(),
+        main: new Image(384, 288),
+        background: new Image(1964, 357)
+    };
+    
+    // Initialize all images from files
+    gTextures.start.src = "Graphics/start.png";
+    gTextures.start2.src = "Graphics/start2.png";
+    gTextures.main.src = "Graphics/match3.png";
+    gTextures.background.src = "Graphics/background.png";
+
+    // Declare and initialize quads for all textures as objects using the util.js functions
+    gFrames = {
+        blocks: GenerateBlocks(gTextures.main)
+    }
+
     // Add event listeners for keydown and keyup and change the array "keys" accordingly
     let keys = [];
     window.addEventListener('keydown', function (e) {
@@ -50,33 +90,36 @@
         keys[e.keyCode] = false;
     })
 
-    // Add event listener for mouse movement and clicks
+    // Add variables and event listeners for mouse movement and clicks
     let mousePositionX;
     let mousePositionY;
+    let mouseStartX;
     let isMouseDown = false;
     window.addEventListener('mousemove', function (e){
         mousePositionX = e.clientX;
         mousePositionY = e.clientY;
-    })
+    });
     window.addEventListener('mousedown', function (e){
         isMouseDown = true;
-        console.log(isMouseDown)
-    })
+        mouseStartX = e.clientX;
+    });
     window.addEventListener('mouseup', function (e){
         isMouseDown = false;
-        console.log(isMouseDown)
-
-    })
+    });
 
     // Create state machine and initialize states
     gStateMachine = new StateMachine({
 		start: new StartState(),
 		// scores: new ScoreState(),
-		// play: new PlayState(),
+		play: new PlayState(),
 		// game_over: new GameOverState(),
 		// enter: new EnterState(),
 		});
 	gStateMachine.change('start');
+
+    // Declare global objects
+    Timer = new Timer();
+    Board = new Board();
 
     /* 
     * The update function - called every frame using requestAnimationFrame and updates
@@ -84,8 +127,10 @@
     */
     function update()
     {
+        backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED) % BACKGROUND_LOOP_POINT;
         draw();
         gStateMachine.update();
+        Timer.update();
         requestAnimationFrame(update);
     }
 
@@ -95,6 +140,8 @@
     function draw()
     {
         ctx.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT)
+        ctx.drawImage(gTextures.background, -backgroundScroll, 0, 
+        gTextures.background.width*backgroundScale, gTextures.background.height*backgroundScale);
         displayFPS();
 		gStateMachine.render();
     }
@@ -113,9 +160,16 @@
         fps = times.length;
         
         ctx.textAlign = 'left';
-        //ctx.font = gFonts.small;
-        ctx.fillStyle = 'green';
+        ctx.font = gFonts.small;
+        ctx.fillStyle = 'blue';
         ctx.fillText("FPS: " + fps, 10*SCALE_FACTOR_WIDTH, 10*SCALE_FACTOR_HEIGHT);
+    }
+
+    function randInt(min, max) 
+    {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1) + min); 
     }
 
 
