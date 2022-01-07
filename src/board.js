@@ -9,8 +9,8 @@ class Board{
         this.y = 16;
         this.width = 210;
         this.height = 210;
-        console.log(this.board, this.tiles);
-
+        this.cooldown = 20;
+        this.rowNeeded = false;
     }
 
     addRow()
@@ -29,6 +29,8 @@ class Board{
         let tempTiles = numTiles;
         let tempArray = []
         let tempRow = [0,0,0,0,0,0,0,0];
+        //this.updateTiles();
+        this.updateIndex();        
 
         for(let i = 0; i < numTiles; i++)
         {
@@ -47,7 +49,7 @@ class Board{
                     let tilePosition = possibleIndex[randInt(0, possibleIndex.length - 1)];
                     if(this.canFit(tilePosition, tileLength, tempRow))
                     {
-                        tempArray.push(new Tile(tileLength, tilePosition, this.board.length))
+                        tempArray.push(new Tile(tileLength, tilePosition, 0))
                         isIn = true;
                         numSpaces -= tileLength;
                         for(let j = 0; j < tileLength; j++)
@@ -59,8 +61,64 @@ class Board{
                 }
             }
         }
-        this.board.push(tempRow);
-        this.tiles.push(tempArray);
+        this.board.unshift(tempRow);
+        this.tiles.unshift(tempArray);
+        //this.updateTiles();
+        //console.log(this.tiles)
+    }
+
+    updateIndex()
+    {   
+        for(let i = 0; i < this.tiles.length; i++)
+        {
+            for(let j = 0; j < this.tiles[i].length; j++)
+            {   
+                let tile = this.tiles[i][j];
+                this.tiles[i][j].indexY = tile.indexY + 1;
+                let index = tile.indexY;
+                window.requestAnimationFrame(function() { 
+                    Timer.tween(tile.y, (8-index) * 25 + 21, .5, tile);
+                });
+            }     
+        }
+
+        let me = this;
+        setTimeout(() => {
+            me.stopRising(me);
+        }, 550);
+        
+    }
+
+    stopRising(me)
+    {
+        for(let i = 0; i < me.tiles.length; i++)
+            for(let j = 0; j < me.tiles[i].length; j++)
+                me.tiles[i][j].isRising = false;
+    }
+
+    set(value)
+    {
+
+    }
+
+    updateTiles()
+    {
+        let newTiles = [];
+        for(let i = 0; i < this.tiles.length; i++)
+        {
+            newTiles.push([]);
+        }
+        for(let i = 0; i < this.tiles.length; i++)
+        {
+            for(let j = 0; j < this.tiles[i].length; j++)
+            {
+                let tile = this.tiles[i][j];
+                newTiles[tile.indexY].push(tile);  
+            }
+        }
+        this.tiles = newTiles;
+        // if(!this.allCorrect)
+        //     this.updateTiles();
     }
 
     checkRow(length, arr)
@@ -100,8 +158,67 @@ class Board{
         }
     }
 
+    noneFalling()
+    {
+        for(let i = 0; i < this.tiles.length; i++)
+            for(let j = 0; j < this.tiles[i].length; j++)
+                if(this.tiles[i][j].isFalling)
+                    return false;
+        return true
+    }
+
+    noneRising()
+    {
+        for(let i = 0; i < this.tiles.length; i++)
+            for(let j = 0; j < this.tiles[i].length; j++)
+                if(this.tiles[i][j].isRising)
+                    return false;
+        return true
+    }
+
+    noneSelected()
+    {
+        for(let i = 0; i < this.tiles.length; i++)
+            for(let j = 0; j < this.tiles[i].length; j++)
+                if(this.tiles[i][j].selected)
+                    return false;
+        return true
+    }
+
+    allCorrect()
+    {
+        for(let i = 0; i < this.tiles.length; i++)
+            for(let j = 0; j < this.tiles[i].length; j++)
+                if(this.tiles[i][j].indexY != i)
+                    return false;
+        return true
+    }
+
+    removeMatches()
+    {
+        for(let i = 0; i < this.tiles.length; i++)
+        {
+            let sum = 0;
+            for(let j = 0; j < this.tiles[i].length; j++)
+            {
+                sum += this.tiles[i][j].length;
+                if(sum == 8 && this.allCorrect()){
+                    //console.log(this.tiles, i, this.allCorrect())
+                    this.tiles[i] = [];
+                    this.cooldown = 1;
+                }
+            }
+            
+        }
+    }
+
     update()
     {
+
+        if(this.tiles.length <= 1){
+            this.addRow();
+        }
+        
         for(let i = 0; i < this.tiles.length; i++)
         {
             for(let j = 0; j < this.tiles[i].length; j++)
@@ -109,6 +226,29 @@ class Board{
                 this.tiles[i][j].update();
             }
         }
+
+        if(this.noneFalling() && this.noneRising() && this.cooldown == 0){
+            //console.log(this.allCorrect())
+            if(this.allCorrect()){
+                this.removeMatches();
+                if(this.rowNeeded && this.cooldown == 0){
+                    this.addRow();
+                    this.rowNeeded = false;
+                }
+                else if(this.tiles.length <=2)
+                {
+                    this.addRow();
+                }
+            }
+            else
+            {
+                this.updateTiles();
+                
+            }
+        }
+
+        if(this.cooldown > 0)
+            this.cooldown--
     }
 
     render()

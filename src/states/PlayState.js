@@ -22,20 +22,27 @@ class PlayState{
     collide(tile)
     {
         if(mousePositionX > tile.x*SCALE_FACTOR_WIDTH &&
-             mousePositionX < tile.x*SCALE_FACTOR_WIDTH + tile.width*SCALE_FACTOR_WIDTH)
+             mousePositionX < tile.x*SCALE_FACTOR_WIDTH + tile.width*SCALE_FACTOR_WIDTH && !tile.isStarter)
         {
             if(mousePositionY > tile.y*SCALE_FACTOR_HEIGHT &&
                  mousePositionY < tile.y*SCALE_FACTOR_HEIGHT + 25*SCALE_FACTOR_HEIGHT){
                 return true;
-                console.log(true)
             }
         }
         return false;
     }
 
+    gameEnd()
+    {
+        if(Board.tiles.length > 9){
+            if(Board.tiles[8].length > 9)
+                gStateMachine.change('start');
+        }
+    }
+
     update()
     {
-        if(isMouseDown && !this.isSelected)
+        if(isMouseDown && !this.isSelected && Board.noneFalling() && Board.noneRising())
         {
             for(let i = 0; i < Board.tiles.length; i++)
             {
@@ -55,9 +62,16 @@ class PlayState{
         if(!isMouseDown && this.isSelected)
         {
             this.isSelected = false;
+            Board.cooldown = 1;
             Board.deselectAll();
+            setTimeout(() => {
+                Board.rowNeeded = true;
+            }, 17);
+            
         }
         Board.update();
+
+        if(this.gameEnd())
 
         if(keys && keys[27])
             window.close();
