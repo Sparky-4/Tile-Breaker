@@ -35,7 +35,7 @@ class PlayState{
     gameEnd()
     {
         if(Board.tiles.length > 9){
-            if(Board.tiles[8].length > 9)
+            if(Board.tiles[9].length > 0)
                 gStateMachine.change('start');
         }
     }

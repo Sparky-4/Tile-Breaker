@@ -11,6 +11,8 @@ class Board{
         this.height = 210;
         this.cooldown = 20;
         this.rowNeeded = false;
+        this.particles = [];
+        this.fillparticles();
     }
 
     addRow()
@@ -29,7 +31,6 @@ class Board{
         let tempTiles = numTiles;
         let tempArray = []
         let tempRow = [0,0,0,0,0,0,0,0];
-        //this.updateTiles();
         this.updateIndex();        
 
         for(let i = 0; i < numTiles; i++)
@@ -63,8 +64,16 @@ class Board{
         }
         this.board.unshift(tempRow);
         this.tiles.unshift(tempArray);
-        //this.updateTiles();
-        //console.log(this.tiles)
+    }
+
+    fillparticles()
+    {
+        for(let i = 0; i < 8; i++)
+        {
+            this.particles[i] = new ParticleSystem(64, this.x + this.width/2,
+                 this.y + this.height - (i*25));
+            
+        }
     }
 
     updateIndex()
@@ -117,8 +126,6 @@ class Board{
             }
         }
         this.tiles = newTiles;
-        // if(!this.allCorrect)
-        //     this.updateTiles();
     }
 
     checkRow(length, arr)
@@ -201,15 +208,32 @@ class Board{
             let sum = 0;
             for(let j = 0; j < this.tiles[i].length; j++)
             {
-                sum += this.tiles[i][j].length;
+                let tile = this.tiles[i][j];
+                sum += tile.length;
                 if(sum == 8 && this.allCorrect()){
-                    //console.log(this.tiles, i, this.allCorrect())
                     this.tiles[i] = [];
                     this.cooldown = 1;
+                    this.particles[i].setLifetime(.7, 1);
+                    this.particles[i].setAcceleration(-.005, .005, .005, .005);
+                    this.particles[i].setAreaSpread(this.width, 25);
+                    this.particles[i].setColor([0,0,0]);
+                    this.particles[i].createParticles();
                 }
             }
             
         }
+    }
+
+    checkTileLength()
+    {
+        let amount = Math.min(7, this.tiles.length-1);
+        for(let i = 1; i < 9; i++)
+        {
+            if(this.tiles[i].length > 0)
+                return false;
+        }
+
+        return true;
     }
 
     update()
@@ -227,15 +251,15 @@ class Board{
             }
         }
 
-        if(this.noneFalling() && this.noneRising() && this.cooldown == 0){
-            //console.log(this.allCorrect())
+        if(this.noneFalling() && this.noneRising() && this.cooldown == 0)
+        {
             if(this.allCorrect()){
                 this.removeMatches();
                 if(this.rowNeeded && this.cooldown == 0){
                     this.addRow();
                     this.rowNeeded = false;
                 }
-                else if(this.tiles.length <=2)
+                else if(this.checkTileLength())
                 {
                     this.addRow();
                 }
@@ -264,5 +288,7 @@ class Board{
                 this.tiles[i][j].render();
             }
         }
+        for(let i = 0; i < this.particles.length; i++)
+            this.particles[i].updateParticles();
     }
 }

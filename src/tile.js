@@ -83,6 +83,8 @@ class Tile{
                 if(this.y >= 221)
                     this.y = 221;
             }
+            else if(this.indexY == 0)
+                this.isFalling = false;
             else
                 this.isFalling = true;
             
@@ -93,7 +95,7 @@ class Tile{
                         this.isFalling = false;
                     }
             if(this.isFalling && Board.noneSelected() && this.indexY != 0){
-                this.y+= 3;
+                this.y+= Math.min(3, 196 - this.y);
                 this.indexY = 8 - Math.round((this.y - 21)/25);
             }
             
@@ -101,8 +103,7 @@ class Tile{
         if(!this.isFalling && !this.isRising)
             this.calculateMax();
         if(this.indexY >= 1)
-            this.isStarter = false;
-            
+            this.isStarter = false;            
     }
 
     render()
