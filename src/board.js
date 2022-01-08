@@ -227,7 +227,7 @@ class Board{
     checkTileLength()
     {
         let amount = Math.min(7, this.tiles.length-1);
-        for(let i = 1; i < 9; i++)
+        for(let i = 1; i < amount; i++)
         {
             if(this.tiles[i].length > 0)
                 return false;
