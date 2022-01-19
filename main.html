@@ -65,6 +65,9 @@
     // Declare all images as image objects in a global textures object
     let backgroundScroll = 0;
     let backgroundScale = WINDOW_HEIGHT/357;
+    let backgroundLoopingPoint = 982*backgroundScale;
+    let backgroundScrollSpeed = backgroundScale;
+    
     let gTextures = {
         start: new Image(),
         start2: new Image(),
@@ -129,7 +132,7 @@
     */
     function update()
     {
-        backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED) % BACKGROUND_LOOP_POINT;
+        backgroundScroll = (backgroundScroll + backgroundScrollSpeed) % backgroundLoopingPoint;
         draw();
         gStateMachine.update();
         Timer.update();
