@@ -92,7 +92,7 @@ class Board{
         }
 
         let me = this;
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             me.stopRising(me);
         }, 550);
         

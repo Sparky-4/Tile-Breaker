@@ -62,7 +62,6 @@ class Tile{
 
         if(this.selected)
         {
-            //this.calculateMax();
             this.x = (mousePositionX - mouseStartX)/SCALE_FACTOR_WIDTH + this.startPos;
             if(this.x < 205)
                 this.x = 205;
