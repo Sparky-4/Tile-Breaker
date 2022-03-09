@@ -3,6 +3,7 @@ class PlayState{
     constructor()
     {
         this.isSelected = false;
+        this.timer = 60;
     }
 
     enter(params)
@@ -10,13 +11,17 @@ class PlayState{
         this.opacity = params.opacity;
         let me = this;
         window.requestAnimationFrame(function() {
-            Timer.tween(me.opacity, 0, .5, me);
+            Timer.tween(me.opacity, 0, .5, me, "opacity");
+            Timer.tween(me.timer, 0, 60, me, "timer");
         });
     }
 
-    set(value)
+    set(value, name)
     {
-        this.opacity = value;
+        if(name == 'opacity')
+            this.opacity = value;
+        else if(name == 'timer')
+            this.timer = value;
     }
 
     collide(tile)
@@ -82,6 +87,17 @@ class PlayState{
     render()
     {
         Board.render();
+
+        ctx.fillStyle = 'rgba(255,255,255,.5)';
+        ctx.fillRect(35*SCALE_FACTOR_WIDTH, 50*SCALE_FACTOR_HEIGHT,
+            150*SCALE_FACTOR_WIDTH, 150*SCALE_FACTOR_HEIGHT);
+
+        ctx.textAlign = 'left';
+        ctx.font = gFonts.small;
+        ctx.fillStyle = 'cyan';
+        ctx.fillText('Time remaining: ' + Math.ceil(this.timer), 40*SCALE_FACTOR_WIDTH, 75*SCALE_FACTOR_HEIGHT);
+
+        ctx.fillText('Score: ' + Board.score, 40*SCALE_FACTOR_WIDTH, 100*SCALE_FACTOR_HEIGHT);
 
         ctx.fillStyle = 'rgba(255,255,255,' + this.opacity + ')';
         ctx.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

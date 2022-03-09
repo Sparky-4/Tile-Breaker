@@ -10,6 +10,7 @@ class Board{
         this.width = 210;
         this.height = 210;
         this.cooldown = 20;
+        this.score = 0;
         this.rowNeeded = false;
         this.particles = [];
         this.fillparticles();
@@ -19,9 +20,9 @@ class Board{
     {
         let percent = randInt(1,100);
         let numSpaces;
-        if(percent < 10)
+        if(percent < 5)
             numSpaces = 4;
-        else if(percent < 30)
+        else if(percent < 25)
             numSpaces = 5;
         else if(percent < 65)
             numSpaces = 6;
@@ -218,6 +219,7 @@ class Board{
                     this.particles[i].setAreaSpread(this.width, 25);
                     this.particles[i].setColor([0,0,0]);
                     this.particles[i].createParticles();
+                    this.score += 10;
                 }
             }
             
