@@ -3,13 +3,10 @@ class StartState{
     constructor()
     {
         this.startHover = false;
-        this.scoresHover = false;
         this.width = 80*SCALE_FACTOR_WIDTH;
         this.height = 40*SCALE_FACTOR_WIDTH;
         this.startX = WINDOW_WIDTH/2 - this.width/2;
         this.startY = WINDOW_HEIGHT*5/9;
-        this.scoreX = WINDOW_WIDTH/2 - this.width/2;
-        this.scoreY = WINDOW_HEIGHT*6/8;
         this.mouseFlag = false;
         this.colors = ['blue', 'cyan', 'purple', 'green', 'orange', 'red', 'yellow'];
         this.titleColors = [0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3];
@@ -34,13 +31,11 @@ class StartState{
     /*
     * checks to see if the mouse is touching the buttons
     */
-    collide(button)
+    collide()
     {
         if(mousePositionX > this.startX && mousePositionX < this.startX + this.width)
         {
-            if(mousePositionY >this.startY && mousePositionY < this.startY + this.height && button == 'start')
-                return true;
-            else if(mousePositionY >this.scoreY && mousePositionY < this.scoreY + this.height && button == 'scores')
+            if(mousePositionY >this.startY && mousePositionY < this.startY + this.height)
                 return true;
             else
                 return false;
@@ -69,7 +64,7 @@ class StartState{
     click()
     {
         let me = this;
-        if(this.collide('start'))
+        if(this.collide())
         {
             setTimeout(() => {
                 gStateMachine.change('play', {opacity: this.opacity});
@@ -79,10 +74,6 @@ class StartState{
                 Timer.tween(me.opacity, 1, .5, me);
             });
 
-        }
-        else if(this.collide('scores'))
-        {
-            //gStateMachine.change('scores');
         }
     }
 
@@ -134,11 +125,6 @@ class StartState{
             ctx.drawImage(gTextures.start,this.startX, this.startY, this.width, this.height);
         else
             ctx.drawImage(gTextures.start2,this.startX, this.startY, this.width, this.height);
-        if(!this.scoresHover)
-            ctx.drawImage(gTextures.start,this.scoreX, this.scoreY, this.width, this.height);
-        else
-            ctx.drawImage(gTextures.start2,this.scoreX, this.scoreY, this.width, this.height);
-
         ctx.fillStyle = 'rgba(255,255,255,' + this.opacity + ')';
         ctx.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
             

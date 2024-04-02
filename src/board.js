@@ -220,6 +220,7 @@ class Board{
                     this.particles[i].setColor([0,0,0]);
                     this.particles[i].createParticles();
                     this.score += 10;
+                    gSounds.match.play();
                 }
             }
             
